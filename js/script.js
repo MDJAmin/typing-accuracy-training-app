@@ -151,7 +151,10 @@ function evaluateCompletion() {
       addScore(points);
       earnedForCurrent = true;
       completedFlag = true;
-      setStatusMessage(`🎉 Completed! +${points} points! Start the next challenge 🎉`, "#b3ffcf");
+      setStatusMessage(
+        `🎉 Completed! +${points} points! Start the next challenge 🎉`,
+        "#b3ffcf",
+      );
 
       renderHighlightedChallenge(currentInputState, currentChallengeString);
       ghostInput.blur();
@@ -161,7 +164,10 @@ function evaluateCompletion() {
     } else {
       if (!completedFlag) completedFlag = true;
       renderHighlightedChallenge(currentInputState, currentChallengeString);
-      setStatusMessage("🏆 You've already earned points for this challenge! Move to the next one 🏆", "#dddd99");
+      setStatusMessage(
+        "🏆 You've already earned points for this challenge! Move to the next one 🏆",
+        "#dddd99",
+      );
       return true;
     }
   }
@@ -272,8 +278,32 @@ function init() {
   phraseZone.addEventListener("click", focusInputZone);
 
   ghostInput.addEventListener("blur", () => {
+    const devEnvironments = [
+      "codepen",
+      "jsfiddle",
+      "localhost",
+      "127.0.0.1",
+      "stackblitz",
+      "codesandbox",
+    ];
+    const isDevEnvironment = devEnvironments.some((env) =>
+      window.location.hostname.includes(env),
+    );
+
+    if (isDevEnvironment) {
+      return;
+    }
+
     setTimeout(() => {
-      if (!completedFlag && document.activeElement !== ghostInput) {
+      const activeEl = document.activeElement;
+      const isEditableElement =
+        activeEl &&
+        (activeEl.isContentEditable ||
+          activeEl.tagName === "TEXTAREA" ||
+          activeEl.tagName === "INPUT" ||
+          activeEl.closest('[contenteditable="true"]'));
+
+      if (!completedFlag && !isEditableElement && activeEl !== ghostInput) {
         ghostInput.focus();
       }
     }, 10);
