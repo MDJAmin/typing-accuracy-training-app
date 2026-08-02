@@ -6,17 +6,14 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
-    <link
-      rel="stylesheet"
-      href="css/style.css"
-    />
-    <title>تایپ حرفه‌ای | سنجش خطا + امتیاز بر اساس دقت</title>
+    <link rel="stylesheet" href="css/style.css">
+    <title>تایپ مستر | چالش تایپ حرفه‌ای</title>
   </head>
   <body>
-    <div class="typing-app">
+    <div class="typing-card">
       <div class="header">
-        <div class="score-box">
-          <span class="score-label">🏆 امتیاز نهایی</span>
+        <div class="score-area">
+          <span class="score-label">🏆 امتیاز کل</span>
           <span
             class="score-value"
             id="totalScoreDisplay"
@@ -29,60 +26,45 @@
             ⟳ ریست امتیاز
           </button>
         </div>
-        <div class="badge">🎯 دقت = امتیاز | خطاها ثبت می‌شوند</div>
+        <div class="challenge-badge">🎯 چالش تصادفی | تایپ انگلیسی</div>
       </div>
 
-      <div class="arena">
+      <div class="challenge-container">
         <div
-          class="phrase-card"
-          id="clickToFocus"
+          class="challenge-text"
+          id="challengeText"
         >
-          <div
-            class="challenge-text"
-            id="renderZone"
-          ></div>
         </div>
       </div>
 
-      <div class="control-bar">
+      <div class="input-area">
+        <textarea
+          class="type-input"
+          id="userInput"
+          rows="2"
+          placeholder="متن بالا را دقیقاً تایپ کنید... از تمام کلیدها (Space, @, !, ?, ...) استفاده کنید!"
+        ></textarea>
+      </div>
+
+      <div class="status-bar">
         <div
-          class="info-message"
+          class="message"
           id="statusMsg"
         >
-          ⌨️ جمله را کامل تایپ کن | بعد از اتمام، خطاها نمایش داده می‌شوند
+          ✨ آماده‌ای؟ متن را تایپ کن و همسان سازی کن ✨
         </div>
         <button
           class="next-btn"
-          id="nextSentenceBtn"
+          id="nextChallengeBtn"
         >
-          ✨ جمله بعدی ✨
+          ➡ چالش جدید ➡
         </button>
       </div>
-
-      <div class="result-area">
-        <div
-          id="liveErrorMsg"
-          class="error-stats"
-        >
-          ⚡ در حال تایپ ...
-        </div>
-        <div id="progressText"></div>
-      </div>
-      <div class="footer">
-        💡 حروف سبز = درست | قرمز = اشتباه | آبی = مکان فعلی | بعد از تکمیل جمله، خطاها نمایش
-        داده شده و امتیاز براساس دقت محاسبه می‌شود. تمام کلیدها پشتیبانی می‌شوند: @ # $ % ^ & *
-        ( ) ! ؟ space
+      <div class="key-hint">
+        ⌨️ پشتیبانی از تمام کلیدهای کیبورد: حروف، اعداد، @ # $ % ^ & * ( ) _ + ! ؟ (؟ معادل ?)
+        , . ; : ' " / \ | space, enter , tab و ...
       </div>
     </div>
-
-    <input
-      type="text"
-      id="ghostInput"
-      class="hidden-input"
-      autocomplete="off"
-      autocapitalize="off"
-      spellcheck="false"
-    />
     <script src="js/script.js"></script>
   </body>
 </html>
