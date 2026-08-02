@@ -1,72 +1,104 @@
 let totalScore = 0;
-const STORAGE_SCORE = "keybrStyleScorePersian";
+const STORAGE_KEY = "typing_accuracy_score_v2";
 
-function loadScoreFromStorage() {
-  const saved = localStorage.getItem(STORAGE_SCORE);
+function loadTotalScore() {
+  const saved = localStorage.getItem(STORAGE_KEY);
   if (saved !== null && !isNaN(parseInt(saved))) {
     totalScore = parseInt(saved);
   } else {
     totalScore = 0;
   }
-  updateScoreUI();
+  document.getElementById("totalScoreDisplay").innerText = totalScore;
 }
 
-function updateScoreUI() {
-  document.getElementById("globalScoreSpan").innerText = totalScore;
+function saveTotalScore() {
+  localStorage.setItem(STORAGE_KEY, totalScore);
+  document.getElementById("totalScoreDisplay").innerText = totalScore;
 }
 
-function addScore(points) {
-  totalScore += points;
-  localStorage.setItem(STORAGE_SCORE, totalScore);
-  updateScoreUI();
-}
-
-function resetScore() {
-  if (confirm("آیا امتیاز کل را به صفر بازنشانی می‌کنید؟")) {
-    totalScore = 0;
-    localStorage.setItem(STORAGE_SCORE, totalScore);
-    updateScoreUI();
-    setStatusMessage("✅ امتیاز ریست شد! ادامه بده و امتیاز بگیر ✅", "#c0e0c0");
+function addPoints(points) {
+  if (points > 0) {
+    totalScore += points;
+    saveTotalScore();
   }
 }
 
-const challengeList = [
-  "The quick brown fox jumps over 123 lazy dogs!",
-  "Typing is fun @#$%^&*()_+ special characters!",
-  "Hello world! How's your speed? 99% perfect? Yes!",
-  "Challenge: $1000 discount? Contact@example.com",
-  "Mix of symbols: ~!@#$%^&*()_+{}|:<>? include space",
-  "JavaScript rules: let x = 5 + 2; // comment",
-  "Lorem ipsum ? dolor sit amet, consectetur ! adipiscing elit.",
-  "Race condition: a^2 + b^2 = c^2 100% correct!",
-  "Type carefully: backslash \\, forward /, pipe |, underscore _",
-  "Email regex: \\w+@[a-z]+\\.com is tricky?",
-  "Password: P@ssw0rd!? includes digits & symbols",
-  "Aliens? Maybe! But let's type: (a+b)*c = a*c + b*c",
-  "The rain in Spain stays mainly in the plain. 007 agent!",
-  "Special blend: `~!@#$%^&*()_+-=[]{};:'\",.<>/?",
-  "Coding is life: <div>Content</div> 2025 ©",
-  "Amazing speed: 90% accuracy + bonus 5 points!",
-  "Space   multiple spaces   and challenging    tabs?",
-  "Have you tried: alt+ctrl ? No, just type @ and #",
-  "Quote test: 'single' \"double\" `backtick`",
-  "Final boss: !@#$%^&*()_+{}|:<>?~ every key matters",
-];
-
-let currentChallengeString = "";
-let currentInputState = ""; //
-let completedFlag = false; //
-let earnedForCurrent = false;
-
-const challengeZone = document.getElementById("challengeRenderZone");
-const ghostInput = document.getElementById("ghostInput");
-
-function getRandomChallengeText() {
-  const idx = Math.floor(Math.random() * challengeList.length);
-  return challengeList[idx];
+function resetGlobalScore() {
+  if (confirm("آیا امتیاز کل را به صفر بازنشانی می‌کنید؟")) {
+    totalScore = 0;
+    saveTotalScore();
+    showTempMessage("امتیاز کل ریست شد!", "#ccc");
+  }
 }
 
-function renderHighlightedChallenge(inputStr, targetStr) {
+const sentenceBank = [
+  "Hello world! How's your typing speed? 123",
+  "The quick brown fox jumps over 99 lazy dogs @#$%",
+  "Typing challenge: include ~!@#$%^&*()_+{}|:<>?",
+  "Email test: user@example.com & pass: 123!@#",
+  "JavaScript is fun! console.log('code'); // comment",
+  "Lorem ipsum @ dolor sit ? Amet consectetur !",
+  "Password: P@ssw0rd!? includes digits & symbols",
+  "Aliens? Maybe! Let's type: (a+b)^2 = a^2 + b^2",
+  "Special chars: `~!@#$%^&*()_+-=[]{};:'\",.<>/?",
+  "Coding rules: 100% focus + 0% distraction!",
+  "Win 50% discount + extra 10% off! Contact?",
+  "Mixed Case: ThIs Is A tYpInG cHaLlEnGe witH @ and ?",
+  "Numbers & symbols: 3.14, 2.718, 0.001, #hashTag",
+  "$currency & percentage 99.9% complete! Great? Yes!",
+  "Type carefully: backslash \\, forward slash /, pipe |",
+];
+
+let currentSentence = "";
+let currentUserInput = "";
+let sentenceCompleted = false; //
+let errorCountForCurrent = 0; //
+let correctCountForCurrent = 0; //
+let totalCharsInSentence = 0;
+
+const renderZone = document.getElementById("renderZone");
+const ghostInput = document.getElementById("ghostInput");
+const statusMsgDiv = document.getElementById("statusMsg");
+const liveErrorMsgSpan = document.getElementById("liveErrorMsg");
+const progressTextSpan = document.getElementById("progressText");
+
+function showTempMessage(msg, color = "#b8d8fc") {
+  const original = statusMsgDiv.innerHTML;
+  statusMsgDiv.innerHTML = msg;
+  statusMsgDiv.style.color = color;
+  setTimeout(() => {
+    if (statusMsgDiv.innerHTML === msg) {
+      if (!sentenceCompleted) {
+        statusMsgDiv.innerHTML =
+          "⌨️ تایپ کن... بعد از اتمام جمله، خطاهات رو میبینی و امتیاز میگیری";
+        statusMsgDiv.style.color = "#b0b0bc";
+      } else {
+      }
+    }
+  }, 2000);
+}
+
+function getRandomSentence() {
+  const randomIndex = Math.floor(Math.random() * sentenceBank.length);
+  return sentenceBank[randomIndex];
+}
+
+function computeStats(input, target) {
+  let errors = 0;
+  let correct = 0;
+  const minLen = Math.min(input.length, target.length);
+  for (let i = 0; i < minLen; i++) {
+    if (input[i] === target[i]) correct++;
+    else errors++;
+  }
+
+  if (input.length > target.length) {
+    errors += input.length - target.length;
+  }
+  return { errors, correct };
+}
+
+function renderWithHighlight(inputStr, targetStr, isCompleted = false) {
   if (!targetStr) return;
   let html = "";
   const inputLen = inputStr.length;
@@ -74,57 +106,45 @@ function renderHighlightedChallenge(inputStr, targetStr) {
 
   for (let i = 0; i < targetLen; i++) {
     const targetChar = targetStr[i];
-    let charState = "pending"; //
+    let state = "pending"; //
     if (i < inputLen) {
-      if (inputStr[i] === targetChar) {
-        charState = "correct";
-      } else {
-        charState = "error";
-      }
+      if (inputStr[i] === targetChar) state = "correct";
+      else state = "error";
     } else {
-      charState = "pending";
+      state = "pending";
     }
 
-    const isActive = i === inputLen && !completedFlag;
-    let spanClass = "";
-    if (charState === "correct") spanClass = "char-correct";
-    else if (charState === "error") spanClass = "char-error";
-    else if (charState === "pending") spanClass = "char-pending";
+    const isActive = !isCompleted && i === inputLen;
+    let className = "";
+    if (state === "correct") className = "char-correct";
+    else if (state === "error") className = "char-error";
+    else className = "char-pending";
 
-    let additionalActiveClass = isActive && !completedFlag ? "char-active" : "";
-    // کاراکترهای خاص باید به نحو امن نمایش داده شوند
+    if (isActive) className += " char-active";
+
     let displayChar = targetChar;
     if (targetChar === " ") displayChar = "&nbsp;";
     else if (targetChar === "<") displayChar = "&lt;";
     else if (targetChar === ">") displayChar = "&gt;";
     else if (targetChar === "&") displayChar = "&amp;";
 
-    const classAttr = `class="${spanClass} ${additionalActiveClass}"`;
     if (targetChar === " ") {
-      html += `<span ${classAttr} style="display:inline-block; min-width: 0.5em;">&nbsp;</span>`;
+      html += `<span class="${className}" style="display:inline-block; min-width: 0.5em;">&nbsp;</span>`;
     } else {
-      html += `<span ${classAttr}>${displayChar}</span>`;
+      html += `<span class="${className}">${displayChar}</span>`;
     }
   }
 
-  if (inputLen > targetLen) {
-    const extraChars = inputStr.slice(targetLen);
-    for (let i = 0; i < extraChars.length; i++) {
-      html += `<span class="char-error" style="background:#7a2e2e;">${escapeHtml(extraChars[i])}</span>`;
+  if (inputLen > targetLen && !isCompleted) {
+    const extraPart = inputStr.slice(targetLen);
+    for (let i = 0; i < extraPart.length; i++) {
+      html += `<span class="char-error" style="background:#7a2e2e;">${escapeHtmlChar(extraPart[i])}</span>`;
     }
   }
-  challengeZone.innerHTML = html;
-
-  const progressElem = document.getElementById("progressCounter");
-  if (!completedFlag) {
-    const correctCount = countCorrectChars(inputStr, targetStr);
-    progressElem.innerText = `✔️ ${correctCount} / ${targetLen} کاراکتر درست`;
-  } else {
-    progressElem.innerText = `🎉 تکمیل شده! 🎉`;
-  }
+  renderZone.innerHTML = html;
 }
 
-function escapeHtml(ch) {
+function escapeHtmlChar(ch) {
   if (ch === " ") return "&nbsp;";
   if (ch === "<") return "&lt;";
   if (ch === ">") return "&gt;";
@@ -132,159 +152,166 @@ function escapeHtml(ch) {
   return ch;
 }
 
-function countCorrectChars(input, target) {
-  let correct = 0;
-  const minLen = Math.min(input.length, target.length);
-  for (let i = 0; i < minLen; i++) {
-    if (input[i] === target[i]) correct++;
-  }
-  return correct;
-}
-
-function evaluateCompletion() {
-  if (completedFlag) return true;
-  const userText = currentInputState;
-  const target = currentChallengeString;
-  if (userText === target) {
-    if (!earnedForCurrent) {
-      let points = Math.max(18, Math.floor(target.length / 1.8) + 12);
-      addScore(points);
-      earnedForCurrent = true;
-      completedFlag = true;
-      setStatusMessage(`🎉 کامل شد! +${points} امتیاز! چالش بعدی رو شروع کن 🎉`, "#b3ffcf");
-
-      renderHighlightedChallenge(currentInputState, currentChallengeString);
-      ghostInput.blur();
-
-      document.getElementById("progressCounter").innerHTML = `✅ چالش کامل شد! ✅`;
-      return true;
+function updateLiveStats() {
+  if (sentenceCompleted) return;
+  const stats = computeStats(currentUserInput, currentSentence);
+  const totalTargetLen = currentSentence.length;
+  const typedSoFar = currentUserInput.length;
+  liveErrorMsgSpan.innerHTML = `⚠️ خطاهای فعلی: ${stats.errors}  |  ✅ صحیح: ${stats.correct} / ${totalTargetLen}`;
+  if (typedSoFar >= totalTargetLen && !sentenceCompleted) {
+    if (currentUserInput !== currentSentence) {
+      progressTextSpan.innerHTML = `📝 تایپ شده: ${typedSoFar}/${totalTargetLen} کاراکتر | برای تکمیل باید دقیقاً برابر شود`;
     } else {
-      if (!completedFlag) completedFlag = true;
-      renderHighlightedChallenge(currentInputState, currentChallengeString);
-      setStatusMessage("🏆 این چالش قبلاً امتیازش رو گرفتی! برو چالش بعدی 🏆", "#dddd99");
-      return true;
+      progressTextSpan.innerHTML = `🟢 در حال اتمام...`;
     }
+  } else {
+    progressTextSpan.innerHTML = `⌨️ پیشرفت: ${typedSoFar}/${totalTargetLen} کاراکتر`;
   }
-  return false;
 }
 
-function updateTyping(newInputValue) {
-  if (completedFlag) {
-    ghostInput.value = currentInputState;
-    setStatusMessage("این چالش قبلاً کامل شده! دکمه 'چالش جدید' رو بزن.", "#ffb56e");
+function finalizeSentenceAndGiveScore() {
+  if (sentenceCompleted) return;
+
+  if (currentUserInput !== currentSentence) {
     return;
   }
 
-  const maxAllowed = currentChallengeString.length + 3;
-  let trimmedInput = newInputValue;
-  if (trimmedInput.length > maxAllowed) {
-    trimmedInput = trimmedInput.slice(0, maxAllowed);
-    ghostInput.value = trimmedInput;
-  }
-  currentInputState = trimmedInput;
+  const finalStats = computeStats(currentUserInput, currentSentence);
+  const totalErrors = finalStats.errors;
+  const totalCorrect = finalStats.correct;
+  const totalLength = currentSentence.length;
 
-  renderHighlightedChallenge(currentInputState, currentChallengeString);
+  let accuracy = totalLength > 0 ? (totalCorrect / totalLength) * 100 : 100;
+  accuracy = Math.min(100, Math.max(0, accuracy));
 
-  const finished = evaluateCompletion();
-  if (!finished) {
-    const corr = countCorrectChars(currentInputState, currentChallengeString);
-    setStatusMessage(
-      `⌨️ در حال تایپ... ${corr}/${currentChallengeString.length} کاراکتر صحیح. دقت کن!`,
-      "#bcbcbc",
-    );
-  } else {
-    ghostInput.value = currentInputState;
-  }
+  let basePoints = 15;
+  let accuracyBonus = Math.floor(accuracy * 0.45); //
+  let penaltyForErrors = Math.floor(totalErrors * 0.8); //
+
+  let finalPoints = basePoints + accuracyBonus - penaltyForErrors;
+  finalPoints = Math.max(5, finalPoints); //
+
+  const errorMessage = `📊 جمله کامل شد! ❌ تعداد کل خطاها: ${totalErrors}  |  ✅ کاراکترهای درست: ${totalCorrect}/${totalLength}  |  دقت: ${accuracy.toFixed(1)}%`;
+  liveErrorMsgSpan.innerHTML = errorMessage;
+  progressTextSpan.innerHTML = `🎉 تکمیل شد! امتیاز این جمله: +${finalPoints} (بر اساس دقت و خطاها) 🎉`;
+
+  addPoints(finalPoints);
+
+  sentenceCompleted = true;
+
+  renderWithHighlight(currentUserInput, currentSentence, true);
+  statusMsgDiv.innerHTML = `✅ جمله تمام شد! ${errorMessage} ✅ برای ادامه جمله بعدی رو بزن`;
+  statusMsgDiv.style.color = "#c3ffb2";
+  ghostInput.blur();
+
+  ghostInput.disabled = true;
 }
 
-function setStatusMessage(msg, color = "#b0b0b0") {
-  const msgDiv = document.getElementById("liveMessage");
-  msgDiv.innerHTML = msg;
-  msgDiv.style.color = color;
-  setTimeout(() => {
-    if (!completedFlag && document.getElementById("liveMessage").innerHTML === msg) {
-      if (!completedFlag) msgDiv.style.color = "#aaa";
+function handleTyping(e) {
+  if (sentenceCompleted) {
+    ghostInput.value = currentUserInput;
+    return;
+  }
+
+  let rawInput = e.target.value;
+
+  const maxAllowed = currentSentence.length + 5;
+  if (rawInput.length > maxAllowed) {
+    rawInput = rawInput.slice(0, maxAllowed);
+    ghostInput.value = rawInput;
+  }
+  currentUserInput = rawInput;
+
+  renderWithHighlight(currentUserInput, currentSentence, false);
+
+  const liveStats = computeStats(currentUserInput, currentSentence);
+  liveErrorMsgSpan.innerHTML = `⚠️ خطاهای فعلی: ${liveStats.errors}  |  ✅ صحیح: ${liveStats.correct} / ${currentSentence.length}`;
+  progressTextSpan.innerHTML = `⌨️ پیشرفت: ${currentUserInput.length}/${currentSentence.length} کاراکتر`;
+
+  if (currentUserInput === currentSentence && !sentenceCompleted) {
+    finalizeSentenceAndGiveScore();
+  } else if (currentUserInput.length > currentSentence.length && !sentenceCompleted) {
+    if (currentUserInput !== currentSentence) {
     }
-  }, 2000);
+  }
 }
 
-function loadNewChallenge() {
-  currentChallengeString = getRandomChallengeText();
-  currentInputState = "";
-  completedFlag = false;
-  earnedForCurrent = false;
+function startNewSentence() {
+  currentSentence = getRandomSentence();
+  currentUserInput = "";
+  sentenceCompleted = false;
+  errorCountForCurrent = 0;
+  correctCountForCurrent = 0;
+  totalCharsInSentence = currentSentence.length;
+
+  ghostInput.disabled = false;
   ghostInput.value = "";
   ghostInput.focus();
-  renderHighlightedChallenge("", currentChallengeString);
-  setStatusMessage(
-    "✨ چالش جدید! شروع کن به تایپ (حروف و علائم خاص مثل @ # ! ؟) ✨",
-    "#bbd9ff",
-  );
-  document.getElementById("progressCounter").innerHTML =
-    "🖊️ 0 / " + currentChallengeString.length + " کاراکتر";
+
+  renderWithHighlight("", currentSentence, false);
+
+  liveErrorMsgSpan.innerHTML =
+    "✨ جمله جدید! تایپ کن، بعد از اتمام خطاها و امتیاز نمایش داده می‌شوند ✨";
+  progressTextSpan.innerHTML = `📝 جمله شامل ${totalCharsInSentence} کاراکتر (شامل فاصله و علائم)`;
+  statusMsgDiv.innerHTML =
+    "🔥 جمله جدید رو کامل تایپ کن، هرچقدر خطا داشته باشی بعد از اتمام بهت نشون داده میشه 🔥";
+  statusMsgDiv.style.color = "#c3e2fc";
 }
 
-function onGhostInput(e) {
-  if (completedFlag) {
-    ghostInput.value = currentInputState;
-    return;
+function handleResetScore() {
+  resetGlobalScore();
+  showTempMessage("امتیاز کل صفر شد، خطاهای جاری روی امتیاز جدید تاثیر دارد", "#ffcf9a");
+}
+
+function forceNewSentence() {
+  if (
+    !sentenceCompleted &&
+    currentUserInput !== currentSentence &&
+    currentUserInput.length > 0
+  ) {
+    if (
+      confirm("جمله فعلی کامل نشده! با شروع جمله جدید، پیشرفت فعلی از دست می‌رود. ادامه میدی؟")
+    ) {
+      startNewSentence();
+    } else {
+      ghostInput.focus();
+    }
+  } else {
+    startNewSentence();
   }
-  const rawValue = e.target.value;
-  updateTyping(rawValue);
 }
 
-function resetGlobalScoreHandler() {
-  resetScore();
-}
-
-function nextChallengeHandler() {
-  loadNewChallenge();
-
-  setTimeout(() => {
-    ghostInput.focus();
-  }, 20);
-}
-
-function focusInputZone() {
-  if (!completedFlag) {
+function refocusInput() {
+  if (!sentenceCompleted) {
     ghostInput.focus();
   } else {
-    setStatusMessage("این چالش تمام شده! دکمه چالش جدید رو بزن.", "#f3b3a0");
+    showTempMessage("این جمله کامل شده، دکمه جمله بعدی رو بزن", "#f5bc70");
   }
 }
 
 function init() {
-  loadScoreFromStorage();
-
-  currentChallengeString = getRandomChallengeText();
-  currentInputState = "";
-  completedFlag = false;
-  earnedForCurrent = false;
-  renderHighlightedChallenge("", currentChallengeString);
+  loadTotalScore();
+  currentSentence = getRandomSentence();
+  currentUserInput = "";
+  sentenceCompleted = false;
+  totalCharsInSentence = currentSentence.length;
+  renderWithHighlight("", currentSentence, false);
   ghostInput.value = "";
+  ghostInput.disabled = false;
   ghostInput.focus();
+  liveErrorMsgSpan.innerHTML = "✨ شروع کن! بعد از تکمیل جمله خطاها و امتیاز رو میبینی ✨";
+  progressTextSpan.innerHTML = `🎯 جمله شامل ${totalCharsInSentence} کاراکتر ویژه و حروف`;
 
-  ghostInput.addEventListener("input", onGhostInput);
-  document.getElementById("nextChallengeBtn").addEventListener("click", nextChallengeHandler);
-  document.getElementById("resetGlobalBtn").addEventListener("click", resetGlobalScoreHandler);
-
-  const phraseZone = document.getElementById("phraseClickZone");
-  phraseZone.addEventListener("click", focusInputZone);
+  ghostInput.addEventListener("input", handleTyping);
+  document.getElementById("nextSentenceBtn").addEventListener("click", forceNewSentence);
+  document.getElementById("resetScoreBtn").addEventListener("click", handleResetScore);
+  document.getElementById("clickToFocus").addEventListener("click", refocusInput);
 
   ghostInput.addEventListener("blur", () => {
-    setTimeout(() => {
-      if (!completedFlag && document.activeElement !== ghostInput) {
-        ghostInput.focus();
-      }
-    }, 10);
+    if (!sentenceCompleted && document.activeElement !== ghostInput) {
+      setTimeout(() => ghostInput.focus(), 10);
+    }
   });
-
-  setStatusMessage(
-    "🔵 شبیه keybr: کاراکتر آبی = موقعیت فعلی | سبز = درست | قرمز = اشتباه | تمام کلیدها پشتیبانی می‌شوند",
-    "#9cc9ff",
-  );
-  document.getElementById("progressCounter").innerHTML =
-    `0 / ${currentChallengeString.length} کاراکتر`;
 }
 
 init();

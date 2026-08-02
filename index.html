@@ -10,73 +10,79 @@
       rel="stylesheet"
       href="css/style.css"
     />
-    <title>تایپ حرفه‌ای | چالش زنده شبیه Keybr</title>
+    <title>تایپ حرفه‌ای | سنجش خطا + امتیاز بر اساس دقت</title>
   </head>
   <body>
-    <div class="typing-master">
-      <div class="top-bar">
-        <div class="score-panel">
-          <span class="score-label">⚡ امتیاز کل</span>
+    <div class="typing-app">
+      <div class="header">
+        <div class="score-box">
+          <span class="score-label">🏆 امتیاز نهایی</span>
           <span
             class="score-value"
-            id="globalScoreSpan"
+            id="totalScoreDisplay"
             >0</span
           >
           <button
             class="reset-score"
-            id="resetGlobalBtn"
+            id="resetScoreBtn"
           >
-            ⟳ ریست
+            ⟳ ریست امتیاز
           </button>
         </div>
-        <div class="badge">🎯 چالش تصادفی | حالت Keybr-like</div>
+        <div class="badge">🎯 دقت = امتیاز | خطاها ثبت می‌شوند</div>
       </div>
 
-      <div class="challenge-arena">
+      <div class="arena">
         <div
-          class="phrase-container"
-          id="phraseClickZone"
+          class="phrase-card"
+          id="clickToFocus"
         >
           <div
-            class="static-challenge"
-            id="challengeRenderZone"
+            class="challenge-text"
+            id="renderZone"
           ></div>
         </div>
       </div>
-      <div class="input-overlay">
-        <input
-          type="text"
-          id="ghostInput"
-          class="hidden-input"
-          autocomplete="off"
-          autocapitalize="off"
-          spellcheck="false"
-        />
-        <div class="input-simulator">
-          <div class="typing-hint">
-            ⌨️ هم اکنون تایپ کنید ... (همه کلیدها: @ # $ % ^ & * ! ؟ space)
-          </div>
-          <button
-            class="next-btn"
-            id="nextChallengeBtn"
-          >
-            ➡ چالش جدید ➡
-          </button>
+
+      <div class="control-bar">
+        <div
+          class="info-message"
+          id="statusMsg"
+        >
+          ⌨️ جمله را کامل تایپ کن | بعد از اتمام، خطاها نمایش داده می‌شوند
         </div>
+        <button
+          class="next-btn"
+          id="nextSentenceBtn"
+        >
+          ✨ جمله بعدی ✨
+        </button>
       </div>
 
-      <div class="status-area">
-        <div id="liveMessage">
-          ✨ هر کاراکتر را دقیق تایپ کن &nbsp;|&nbsp; سبز=صحیح &nbsp; قرمز=خطا
+      <div class="result-area">
+        <div
+          id="liveErrorMsg"
+          class="error-stats"
+        >
+          ⚡ در حال تایپ ...
         </div>
-        <div id="progressCounter"></div>
+        <div id="progressText"></div>
       </div>
-      <div class="footer-keyboard">
-        💡 سبک Keybr: کاراکتر جاری هایلایت آبی، کاراکترهای درست سبز، غلط قرمز. با اسپیس و علائم
-        خاص مانند @ ! ؟ به راحتی تایپ کن!
+      <div class="footer">
+        💡 حروف سبز = درست | قرمز = اشتباه | آبی = مکان فعلی | بعد از تکمیل جمله، خطاها نمایش
+        داده شده و امتیاز براساس دقت محاسبه می‌شود. تمام کلیدها پشتیبانی می‌شوند: @ # $ % ^ & *
+        ( ) ! ؟ space
       </div>
     </div>
 
+    <input
+      type="text"
+      id="ghostInput"
+      class="hidden-input"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+    />
     <script src="js/script.js"></script>
   </body>
 </html>
