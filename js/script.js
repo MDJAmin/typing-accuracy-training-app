@@ -1,210 +1,290 @@
-let currentScore = 0;
-const SCORE_KEY = "typingMasterScorePersian";
+let totalScore = 0;
+const STORAGE_SCORE = "keybrStyleScorePersian";
 
-function loadScore() {
-  const saved = localStorage.getItem(SCORE_KEY);
+function loadScoreFromStorage() {
+  const saved = localStorage.getItem(STORAGE_SCORE);
   if (saved !== null && !isNaN(parseInt(saved))) {
-    currentScore = parseInt(saved);
+    totalScore = parseInt(saved);
   } else {
-    currentScore = 0;
+    totalScore = 0;
   }
   updateScoreUI();
 }
 
 function updateScoreUI() {
-  document.getElementById("totalScoreDisplay").innerText = currentScore;
+  document.getElementById("globalScoreSpan").innerText = totalScore;
 }
 
-function addPoints(points) {
-  currentScore += points;
-  localStorage.setItem(SCORE_KEY, currentScore);
+function addScore(points) {
+  totalScore += points;
+  localStorage.setItem(STORAGE_SCORE, totalScore);
   updateScoreUI();
 }
 
-function resetGlobalScore() {
+function resetScore() {
   if (confirm("آیا امتیاز کل را به صفر بازنشانی می‌کنید؟")) {
-    currentScore = 0;
-    localStorage.setItem(SCORE_KEY, currentScore);
+    totalScore = 0;
+    localStorage.setItem(STORAGE_SCORE, totalScore);
     updateScoreUI();
-    showTemporaryMessage("امتیاز با موفقیت ریست شد!", "#b0b0b0");
+    setStatusMessage("✅ امتیاز ریست شد! ادامه بده و امتیاز بگیر ✅", "#c0e0c0");
   }
 }
 
-const challengeBank = [
-  "Hello world! How's your typing speed? 123 🚀",
-  "The quick brown fox jumps over the lazy dog @#$%^&*()",
-  "Typing challenge: include symbols ~!@#$%^&*()_+{}|:<>?",
-  "Future dev: $1000 or 1000$? It's a question? 99% sure.",
-  "Email test: user@example.com & pass: 123!@#",
-  "JavaScript is fun! console.log('Hello'); // comment",
-  "Lorem ipsum @ dolor sit ? Amet consectetur ! adipisicing elit.",
-  "Password: P@ssw0rd!? شامل کاراکترهای ویژه",
-  "The rain in Spain stays mainly in the plain, said 007.",
-  "Aliens? Maybe! But let's type: (a+b)^2 = a^2 + 2ab + b^2",
-  "Special chars: `~!@#$%^&*()_+-=[]{};:'\",.<>/?\\|",
-  "Space   multiple spaces   and tabs\t simulator test.",
-  "Coding keyboard use: <div>Hello</div> 2024 ©",
-  "Win a prize: 50% discount + extra 10% off! Contact?",
-  ": ) Emoji not needed but: ;) :D  ??? and !!!! wow",
-  "Qwerty uiop asdfgh jkl; zxcvbnm 1234567890",
-  "Mixed case: ThIs Is A tYpInG cHaLlEnGe witH @ and ? yes!",
-  "Numbers & symbols: 3.14, 2.718, 0.001, #hashTag",
-  "$currency & percentage 99.9% complete! Great? Yes!",
-  "Type carefully: backslash \\, forward slash /, pipe |, underscore _",
+const challengeList = [
+  "The quick brown fox jumps over 123 lazy dogs!",
+  "Typing is fun @#$%^&*()_+ special characters!",
+  "Hello world! How's your speed? 99% perfect? Yes!",
+  "Challenge: $1000 discount? Contact@example.com",
+  "Mix of symbols: ~!@#$%^&*()_+{}|:<>? include space",
+  "JavaScript rules: let x = 5 + 2; // comment",
+  "Lorem ipsum ? dolor sit amet, consectetur ! adipiscing elit.",
+  "Race condition: a^2 + b^2 = c^2 100% correct!",
+  "Type carefully: backslash \\, forward /, pipe |, underscore _",
+  "Email regex: \\w+@[a-z]+\\.com is tricky?",
+  "Password: P@ssw0rd!? includes digits & symbols",
+  "Aliens? Maybe! But let's type: (a+b)*c = a*c + b*c",
+  "The rain in Spain stays mainly in the plain. 007 agent!",
+  "Special blend: `~!@#$%^&*()_+-=[]{};:'\",.<>/?",
+  "Coding is life: <div>Content</div> 2025 ©",
+  "Amazing speed: 90% accuracy + bonus 5 points!",
+  "Space   multiple spaces   and challenging    tabs?",
+  "Have you tried: alt+ctrl ? No, just type @ and #",
+  "Quote test: 'single' \"double\" `backtick`",
+  "Final boss: !@#$%^&*()_+{}|:<>?~ every key matters",
 ];
 
-let currentChallengeText = "";
-let currentIsCompleted = false;
+let currentChallengeString = "";
+let currentInputState = ""; //
+let completedFlag = false; //
+let earnedForCurrent = false;
 
-function getRandomChallenge() {
-  const randomIndex = Math.floor(Math.random() * challengeBank.length);
-  return challengeBank[randomIndex];
+const challengeZone = document.getElementById("challengeRenderZone");
+const ghostInput = document.getElementById("ghostInput");
+
+function getRandomChallengeText() {
+  const idx = Math.floor(Math.random() * challengeList.length);
+  return challengeList[idx];
+}
+
+function renderHighlightedChallenge(inputStr, targetStr) {
+  if (!targetStr) return;
+  let html = "";
+  const inputLen = inputStr.length;
+  const targetLen = targetStr.length;
+
+  for (let i = 0; i < targetLen; i++) {
+    const targetChar = targetStr[i];
+    let charState = "pending"; //
+    if (i < inputLen) {
+      if (inputStr[i] === targetChar) {
+        charState = "correct";
+      } else {
+        charState = "error";
+      }
+    } else {
+      charState = "pending";
+    }
+
+    const isActive = i === inputLen && !completedFlag;
+    let spanClass = "";
+    if (charState === "correct") spanClass = "char-correct";
+    else if (charState === "error") spanClass = "char-error";
+    else if (charState === "pending") spanClass = "char-pending";
+
+    let additionalActiveClass = isActive && !completedFlag ? "char-active" : "";
+    // کاراکترهای خاص باید به نحو امن نمایش داده شوند
+    let displayChar = targetChar;
+    if (targetChar === " ") displayChar = "&nbsp;";
+    else if (targetChar === "<") displayChar = "&lt;";
+    else if (targetChar === ">") displayChar = "&gt;";
+    else if (targetChar === "&") displayChar = "&amp;";
+
+    const classAttr = `class="${spanClass} ${additionalActiveClass}"`;
+    if (targetChar === " ") {
+      html += `<span ${classAttr} style="display:inline-block; min-width: 0.5em;">&nbsp;</span>`;
+    } else {
+      html += `<span ${classAttr}>${displayChar}</span>`;
+    }
+  }
+
+  if (inputLen > targetLen) {
+    const extraChars = inputStr.slice(targetLen);
+    for (let i = 0; i < extraChars.length; i++) {
+      html += `<span class="char-error" style="background:#7a2e2e;">${escapeHtml(extraChars[i])}</span>`;
+    }
+  }
+  challengeZone.innerHTML = html;
+
+  const progressElem = document.getElementById("progressCounter");
+  if (!completedFlag) {
+    const correctCount = countCorrectChars(inputStr, targetStr);
+    progressElem.innerText = `✔️ ${correctCount} / ${targetLen} کاراکتر درست`;
+  } else {
+    progressElem.innerText = `🎉 تکمیل شده! 🎉`;
+  }
+}
+
+function escapeHtml(ch) {
+  if (ch === " ") return "&nbsp;";
+  if (ch === "<") return "&lt;";
+  if (ch === ">") return "&gt;";
+  if (ch === "&") return "&amp;";
+  return ch;
+}
+
+function countCorrectChars(input, target) {
+  let correct = 0;
+  const minLen = Math.min(input.length, target.length);
+  for (let i = 0; i < minLen; i++) {
+    if (input[i] === target[i]) correct++;
+  }
+  return correct;
+}
+
+function evaluateCompletion() {
+  if (completedFlag) return true;
+  const userText = currentInputState;
+  const target = currentChallengeString;
+  if (userText === target) {
+    if (!earnedForCurrent) {
+      let points = Math.max(18, Math.floor(target.length / 1.8) + 12);
+      addScore(points);
+      earnedForCurrent = true;
+      completedFlag = true;
+      setStatusMessage(`🎉 کامل شد! +${points} امتیاز! چالش بعدی رو شروع کن 🎉`, "#b3ffcf");
+
+      renderHighlightedChallenge(currentInputState, currentChallengeString);
+      ghostInput.blur();
+
+      document.getElementById("progressCounter").innerHTML = `✅ چالش کامل شد! ✅`;
+      return true;
+    } else {
+      if (!completedFlag) completedFlag = true;
+      renderHighlightedChallenge(currentInputState, currentChallengeString);
+      setStatusMessage("🏆 این چالش قبلاً امتیازش رو گرفتی! برو چالش بعدی 🏆", "#dddd99");
+      return true;
+    }
+  }
+  return false;
+}
+
+function updateTyping(newInputValue) {
+  if (completedFlag) {
+    ghostInput.value = currentInputState;
+    setStatusMessage("این چالش قبلاً کامل شده! دکمه 'چالش جدید' رو بزن.", "#ffb56e");
+    return;
+  }
+
+  const maxAllowed = currentChallengeString.length + 3;
+  let trimmedInput = newInputValue;
+  if (trimmedInput.length > maxAllowed) {
+    trimmedInput = trimmedInput.slice(0, maxAllowed);
+    ghostInput.value = trimmedInput;
+  }
+  currentInputState = trimmedInput;
+
+  renderHighlightedChallenge(currentInputState, currentChallengeString);
+
+  const finished = evaluateCompletion();
+  if (!finished) {
+    const corr = countCorrectChars(currentInputState, currentChallengeString);
+    setStatusMessage(
+      `⌨️ در حال تایپ... ${corr}/${currentChallengeString.length} کاراکتر صحیح. دقت کن!`,
+      "#bcbcbc",
+    );
+  } else {
+    ghostInput.value = currentInputState;
+  }
+}
+
+function setStatusMessage(msg, color = "#b0b0b0") {
+  const msgDiv = document.getElementById("liveMessage");
+  msgDiv.innerHTML = msg;
+  msgDiv.style.color = color;
+  setTimeout(() => {
+    if (!completedFlag && document.getElementById("liveMessage").innerHTML === msg) {
+      if (!completedFlag) msgDiv.style.color = "#aaa";
+    }
+  }, 2000);
 }
 
 function loadNewChallenge() {
-  currentChallengeText = getRandomChallenge();
-  renderChallengeText(currentChallengeText);
-
-  const inputField = document.getElementById("userInput");
-  inputField.value = "";
-  inputField.focus();
-  currentIsCompleted = false;
-
-  const msgDiv = document.getElementById("statusMsg");
-  msgDiv.innerHTML = "✏️ متن جدید رو تایپ کن، بعد از تطابق کامل امتیاز میگیری ✏️";
-  msgDiv.style.color = "#bcbcbc";
-
-  const challengeElem = document.getElementById("challengeText");
-  challengeElem.style.borderColor = "#404042";
+  currentChallengeString = getRandomChallengeText();
+  currentInputState = "";
+  completedFlag = false;
+  earnedForCurrent = false;
+  ghostInput.value = "";
+  ghostInput.focus();
+  renderHighlightedChallenge("", currentChallengeString);
+  setStatusMessage(
+    "✨ چالش جدید! شروع کن به تایپ (حروف و علائم خاص مثل @ # ! ؟) ✨",
+    "#bbd9ff",
+  );
+  document.getElementById("progressCounter").innerHTML =
+    "🖊️ 0 / " + currentChallengeString.length + " کاراکتر";
 }
 
-function renderChallengeText(text) {
-  const container = document.getElementById("challengeText");
-  container.innerText = text;
-}
-
-function isExactMatch(input, target) {
-  return input === target;
-}
-
-let alreadyScoredForCurrent = false;
-
-function handleTyping() {
-  if (currentIsCompleted) return;
-
-  const userInputElem = document.getElementById("userInput");
-  const userText = userInputElem.value;
-  const targetText = currentChallengeText;
-
-  const statusMsgDiv = document.getElementById("statusMsg");
-
-  if (isExactMatch(userText, targetText)) {
-    if (!alreadyScoredForCurrent) {
-      let basePoints = Math.max(15, Math.floor(targetText.length / 2) + 10);
-
-      addPoints(basePoints);
-      alreadyScoredForCurrent = true;
-      currentIsCompleted = true;
-      statusMsgDiv.innerHTML = `✅ عالی! تطابق کامل ✅ +${basePoints} امتیاز! دکمه "چالش جدید" رو بزن یا ادامه بده! ✅`;
-      statusMsgDiv.style.color = "#a3e4a3";
-
-      document.getElementById("challengeText").style.borderColor = "#5fad5f";
-    } else {
-      statusMsgDiv.innerHTML =
-        "🏁 قبلاً این چالش رو کامل کردی و امتیاز گرفتی! چالش بعدی رو شروع کن 🏁";
-      statusMsgDiv.style.color = "#d4d4aa";
-    }
-  } else {
-    if (alreadyScoredForCurrent) {
-      statusMsgDiv.innerHTML = "⚠️ این چالش قبلاً کامل شد! لطفا چالش بعدی رو انتخاب کن ⚠️";
-      statusMsgDiv.style.color = "#e3a0a0";
-    } else {
-      const matchPercent = getMatchPercentage(userText, targetText);
-      statusMsgDiv.innerHTML = `⌨️ در حال تایپ... ${matchPercent}% همخوانی. باید دقیقاً برابر باشد (حساس به بزرگ/کوچکی و فاصله و کاراکترها) ⌨️`;
-      statusMsgDiv.style.color = "#cbcbcb";
-      document.getElementById("challengeText").style.borderColor = "#404042";
-    }
+function onGhostInput(e) {
+  if (completedFlag) {
+    ghostInput.value = currentInputState;
+    return;
   }
+  const rawValue = e.target.value;
+  updateTyping(rawValue);
 }
 
-function getMatchPercentage(input, target) {
-  if (target.length === 0) return 100;
-  let correctChars = 0;
-  const minLen = Math.min(input.length, target.length);
-  for (let i = 0; i < minLen; i++) {
-    if (input[i] === target[i]) correctChars++;
-  }
-  let percent = (correctChars / target.length) * 100;
-  return Math.floor(percent);
+function resetGlobalScoreHandler() {
+  resetScore();
 }
 
-function nextChallenge() {
+function nextChallengeHandler() {
   loadNewChallenge();
-  alreadyScoredForCurrent = false;
-  currentIsCompleted = false;
-  const inputField = document.getElementById("userInput");
-  inputField.value = "";
-  inputField.focus();
-  const statusMsgDiv = document.getElementById("statusMsg");
-  statusMsgDiv.innerHTML = "🌟 چالش جدید! متن رو تایپ کن و امتیاز بگیر 🌟";
-  statusMsgDiv.style.color = "#bcbcbc";
-  document.getElementById("challengeText").style.borderColor = "#404042";
-}
 
-function showTemporaryMessage(msg, color) {
-  const msgDiv = document.getElementById("statusMsg");
-  const originalText = msgDiv.innerHTML;
-  const originalColor = msgDiv.style.color;
-  msgDiv.innerHTML = msg;
-  msgDiv.style.color = color || "#dddddd";
   setTimeout(() => {
-    if (!currentIsCompleted && !alreadyScoredForCurrent) {
-      if (msgDiv.innerHTML.includes("ریست") || msgDiv.innerHTML.includes("امتیاز")) {
-        msgDiv.innerHTML = "✨ آماده‌ای؟ متن را تایپ کن و همسان سازی کن ✨";
-        msgDiv.style.color = "#bcbcbc";
-      } else {
-        msgDiv.innerHTML = originalText;
-        msgDiv.style.color = originalColor;
-      }
-    } else if (currentIsCompleted) {
-    }
-  }, 1800);
+    ghostInput.focus();
+  }, 20);
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  loadScore();
-  currentChallengeText = getRandomChallenge();
-  renderChallengeText(currentChallengeText);
-  const inputElement = document.getElementById("userInput");
-  inputElement.value = "";
-  inputElement.focus();
-  alreadyScoredForCurrent = false;
-  currentIsCompleted = false;
+function focusInputZone() {
+  if (!completedFlag) {
+    ghostInput.focus();
+  } else {
+    setStatusMessage("این چالش تمام شده! دکمه چالش جدید رو بزن.", "#f3b3a0");
+  }
+}
 
-  inputElement.addEventListener("input", handleTyping);
+function init() {
+  loadScoreFromStorage();
 
-  const nextBtn = document.getElementById("nextChallengeBtn");
-  nextBtn.addEventListener("click", () => {
-    nextChallenge();
+  currentChallengeString = getRandomChallengeText();
+  currentInputState = "";
+  completedFlag = false;
+  earnedForCurrent = false;
+  renderHighlightedChallenge("", currentChallengeString);
+  ghostInput.value = "";
+  ghostInput.focus();
+
+  ghostInput.addEventListener("input", onGhostInput);
+  document.getElementById("nextChallengeBtn").addEventListener("click", nextChallengeHandler);
+  document.getElementById("resetGlobalBtn").addEventListener("click", resetGlobalScoreHandler);
+
+  const phraseZone = document.getElementById("phraseClickZone");
+  phraseZone.addEventListener("click", focusInputZone);
+
+  ghostInput.addEventListener("blur", () => {
+    setTimeout(() => {
+      if (!completedFlag && document.activeElement !== ghostInput) {
+        ghostInput.focus();
+      }
+    }, 10);
   });
 
-  const resetBtn = document.getElementById("resetScoreBtn");
-  resetBtn.addEventListener("click", () => {
-    resetGlobalScore();
+  setStatusMessage(
+    "🔵 شبیه keybr: کاراکتر آبی = موقعیت فعلی | سبز = درست | قرمز = اشتباه | تمام کلیدها پشتیبانی می‌شوند",
+    "#9cc9ff",
+  );
+  document.getElementById("progressCounter").innerHTML =
+    `0 / ${currentChallengeString.length} کاراکتر`;
+}
 
-    if (!currentIsCompleted && !alreadyScoredForCurrent) {
-    } else if (currentIsCompleted) {
-      showTemporaryMessage("امتیاز صفر شد! برای چالش بعدی امتیاز جدید میگیری.", "#f3b3b3");
-    }
-  });
-
-  inputElement.addEventListener("blur", () => {
-    setTimeout(() => inputElement.focus(), 10);
-  });
-
-  document.body.addEventListener("click", (e) => {
-    if (e.target !== inputElement && !inputElement.contains(e.target)) {
-      inputElement.focus();
-    }
-  });
-});
+init();

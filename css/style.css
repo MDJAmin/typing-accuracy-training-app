@@ -2,212 +2,225 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  user-select: none;
 }
 
 body {
-  background: #1a1a1a;
+  background: #121212;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Segoe UI", "Fira Code", "Cascadia Code", monospace;
-  padding: 1rem;
+  font-family: "Segoe UI", "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  padding: 1.2rem;
 }
 
-.typing-card {
-  max-width: 1000px;
+.typing-master {
+  max-width: 1100px;
   width: 100%;
-  background: #2c2c2e;
+  background: #1e1e1e;
   border-radius: 2rem;
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 25px 45px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
-.header {
-  background: #1f1f21;
-  padding: 1.2rem 2rem;
-  border-bottom: 1px solid #3a3a3c;
+.top-bar {
+  background: #181818;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #2c2c2e;
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
   gap: 0.8rem;
 }
 
-.score-area {
-  background: #00000055;
-  backdrop-filter: blur(4px);
-  padding: 0.5rem 1.2rem;
-  border-radius: 100px;
+.score-panel {
+  background: #0a0a0c;
+  padding: 0.4rem 1.2rem;
+  border-radius: 40px;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
   font-weight: bold;
 }
 
 .score-label {
-  color: #9e9e9e;
+  color: #9e9ea6;
   font-size: 0.8rem;
   letter-spacing: 1px;
 }
 
 .score-value {
-  color: #f5f5f5;
-  font-size: 2rem;
-  font-weight: 800;
-  margin-left: 0.5rem;
+  color: #f0f0f0;
+  font-size: 1.8rem;
+  font-weight: 700;
   font-family: monospace;
 }
 
 .reset-score {
-  background: #3a3a3c;
+  background: #2c2c2e;
   border: none;
-  color: #ddd;
-  padding: 0.3rem 1rem;
-  border-radius: 2rem;
+  color: #ccc;
+  padding: 0.2rem 1rem;
+  border-radius: 30px;
   font-family: inherit;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   cursor: pointer;
   transition: 0.2s;
-  margin-left: 0.8rem;
+  margin-left: 0.5rem;
 }
 
 .reset-score:hover {
-  background: #e06c5e;
+  background: #d95b4a;
   color: white;
 }
 
-.challenge-badge {
-  background: #00000077;
-  padding: 0.5rem 1.2rem;
-  border-radius: 100px;
-  font-size: 0.9rem;
-  color: #c0c0c0;
+.badge {
+  background: #00000070;
+  padding: 0.4rem 1.2rem;
+  border-radius: 40px;
+  font-size: 0.8rem;
+  color: #c0c0cc;
 }
 
-.challenge-container {
-  padding: 2rem 2rem 1.5rem;
-  background: #252527;
+.challenge-arena {
+  padding: 2rem 2rem 0.8rem;
+  background: #1c1c1e;
 }
 
-.challenge-text {
-  background: #1e1e1e;
-  padding: 1.8rem;
+.phrase-container {
+  background: #141416;
   border-radius: 1.5rem;
-  font-size: 1.8rem;
+  padding: 2rem 1.5rem;
+  border: 1px solid #2e2e32;
+  box-shadow:
+    inset 0 0 6px #00000044,
+    0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.static-challenge {
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  font-size: 2rem;
   font-weight: 500;
-  line-height: 1.4;
-  color: #e9e9ef;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
   word-break: break-word;
   white-space: pre-wrap;
-  font-family: "SF Mono", "Fira Code", monospace;
-  letter-spacing: 0.3px;
-  border: 1px solid #404042;
-  box-shadow:
-    inset 0 0 6px #00000033,
-    0 4px 12px black;
+  color: #5a5a62;
 }
 
-.highlight {
-  background: #3a3f5e;
-  color: #ffffd0;
+.char-correct {
+  color: #eaeef2;
+  background: #2c6e3c;
+  border-radius: 6px;
+  display: inline-block;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.char-pending {
+  color: #64646e;
+}
+
+.char-error {
+  color: #ff8a7a;
+  background: #4a1e1e;
+  border-radius: 6px;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: #ff5c5c;
+}
+
+.char-active {
+  background: #3a6ea5;
+  color: white;
   border-radius: 8px;
-  padding: 0 2px;
+  box-shadow: 0 0 0 2px #7aa9dd;
+  display: inline-block;
 }
 
-.input-area {
-  padding: 0.5rem 2rem 2rem;
-}
-
-.type-input {
+.hidden-input {
+  opacity: 0;
+  position: absolute;
+  pointer-events: auto;
+  left: -100vw;
+  top: 0;
   width: 100%;
-  background: #18181a;
-  border: 2px solid #46464a;
+  height: 100%;
+  z-index: 10;
+}
+
+.input-overlay {
+  position: relative;
+  cursor: text;
+}
+
+.input-simulator {
+  background: #0f0f11;
   border-radius: 1.2rem;
-  padding: 1.2rem 1.5rem;
-  font-size: 1.4rem;
-  font-family: "SF Mono", monospace;
-  color: #f0f0f0;
-  resize: vertical;
-  outline: none;
-  transition: 0.15s;
-  letter-spacing: 0.3px;
-}
-
-.type-input:focus {
-  border-color: #b0b0b8;
-  background: #202022;
-  box-shadow: 0 0 0 2px #5a5a6e44;
-}
-
-.status-bar {
-  padding: 0 2rem 1.5rem;
+  padding: 1rem 1.5rem;
+  margin: 1rem 2rem 1rem;
+  border: 1px solid #38383c;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
   flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.message {
-  background: #00000066;
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
+.typing-hint {
+  font-family: monospace;
   font-size: 0.85rem;
-  color: #bcbcbc;
+  color: #9b9ba3;
+  background: #05050555;
+  padding: 0.4rem 1rem;
+  border-radius: 40px;
 }
 
 .next-btn {
-  background: #3a3a3c;
+  background: #2c3e50;
   border: none;
-  padding: 0.6rem 1.8rem;
+  padding: 0.6rem 1.6rem;
   border-radius: 3rem;
-  font-family: monospace;
+  font-family: inherit;
   font-weight: bold;
-  font-size: 1rem;
-  color: #ececec;
+  font-size: 0.9rem;
+  color: #f0f0f0;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: 0.2s;
 }
 
 .next-btn:hover {
-  background: #5e5e62;
+  background: #446688;
   transform: scale(0.97);
 }
 
-.key-hint {
-  background: #1a1a1c;
-  padding: 0.8rem;
-  text-align: center;
-  font-size: 0.7rem;
-  color: #8e8e93;
-  border-top: 1px solid #3a3a3e;
-  font-family: monospace;
+.status-area {
+  padding: 0.5rem 2rem 1.5rem;
+  font-size: 0.8rem;
+  color: #aaa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-@media (max-width: 600px) {
-  .challenge-text {
-    font-size: 1.2rem;
-    padding: 1rem;
+.footer-keyboard {
+  background: #141416;
+  padding: 0.7rem;
+  text-align: center;
+  font-size: 0.7rem;
+  color: #6a6a74;
+  border-top: 1px solid #2b2b2f;
+}
+
+@media (max-width: 700px) {
+  .static-challenge {
+    font-size: 1.3rem;
   }
-  .type-input {
-    font-size: 1rem;
-  }
-  .header {
+  .top-bar {
     flex-direction: column;
     align-items: stretch;
   }
-}
-
-button {
-  background: none;
-  border: none;
-}
-
-.correct-feedback {
-  color: #6fcf97;
-}
-.error-feedback {
-  color: #e35f5f;
 }

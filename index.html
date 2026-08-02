@@ -6,65 +6,77 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
-    <link rel="stylesheet" href="css/style.css">
-    <title>تایپ مستر | چالش تایپ حرفه‌ای</title>
+    <link
+      rel="stylesheet"
+      href="css/style.css"
+    />
+    <title>تایپ حرفه‌ای | چالش زنده شبیه Keybr</title>
   </head>
   <body>
-    <div class="typing-card">
-      <div class="header">
-        <div class="score-area">
-          <span class="score-label">🏆 امتیاز کل</span>
+    <div class="typing-master">
+      <div class="top-bar">
+        <div class="score-panel">
+          <span class="score-label">⚡ امتیاز کل</span>
           <span
             class="score-value"
-            id="totalScoreDisplay"
+            id="globalScoreSpan"
             >0</span
           >
           <button
             class="reset-score"
-            id="resetScoreBtn"
+            id="resetGlobalBtn"
           >
-            ⟳ ریست امتیاز
+            ⟳ ریست
           </button>
         </div>
-        <div class="challenge-badge">🎯 چالش تصادفی | تایپ انگلیسی</div>
+        <div class="badge">🎯 چالش تصادفی | حالت Keybr-like</div>
       </div>
 
-      <div class="challenge-container">
+      <div class="challenge-arena">
         <div
-          class="challenge-text"
-          id="challengeText"
+          class="phrase-container"
+          id="phraseClickZone"
         >
+          <div
+            class="static-challenge"
+            id="challengeRenderZone"
+          ></div>
+        </div>
+      </div>
+      <div class="input-overlay">
+        <input
+          type="text"
+          id="ghostInput"
+          class="hidden-input"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+        <div class="input-simulator">
+          <div class="typing-hint">
+            ⌨️ هم اکنون تایپ کنید ... (همه کلیدها: @ # $ % ^ & * ! ؟ space)
+          </div>
+          <button
+            class="next-btn"
+            id="nextChallengeBtn"
+          >
+            ➡ چالش جدید ➡
+          </button>
         </div>
       </div>
 
-      <div class="input-area">
-        <textarea
-          class="type-input"
-          id="userInput"
-          rows="2"
-          placeholder="متن بالا را دقیقاً تایپ کنید... از تمام کلیدها (Space, @, !, ?, ...) استفاده کنید!"
-        ></textarea>
-      </div>
-
-      <div class="status-bar">
-        <div
-          class="message"
-          id="statusMsg"
-        >
-          ✨ آماده‌ای؟ متن را تایپ کن و همسان سازی کن ✨
+      <div class="status-area">
+        <div id="liveMessage">
+          ✨ هر کاراکتر را دقیق تایپ کن &nbsp;|&nbsp; سبز=صحیح &nbsp; قرمز=خطا
         </div>
-        <button
-          class="next-btn"
-          id="nextChallengeBtn"
-        >
-          ➡ چالش جدید ➡
-        </button>
+        <div id="progressCounter"></div>
       </div>
-      <div class="key-hint">
-        ⌨️ پشتیبانی از تمام کلیدهای کیبورد: حروف، اعداد، @ # $ % ^ & * ( ) _ + ! ؟ (؟ معادل ?)
-        , . ; : ' " / \ | space, enter , tab و ...
+      <div class="footer-keyboard">
+        💡 سبک Keybr: کاراکتر جاری هایلایت آبی، کاراکترهای درست سبز، غلط قرمز. با اسپیس و علائم
+        خاص مانند @ ! ؟ به راحتی تایپ کن!
       </div>
     </div>
+
     <script src="js/script.js"></script>
   </body>
 </html>
