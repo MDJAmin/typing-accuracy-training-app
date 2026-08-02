@@ -10,13 +10,13 @@
       rel="stylesheet"
       href="css/style.css"
     />
-    <title>تایپ حرفه‌ای | سنجش خطا + امتیاز بر اساس دقت</title>
+    <title>Professional Typing | Error Tracking + Accuracy Score</title>
   </head>
   <body>
     <div class="typing-app">
       <div class="header">
         <div class="score-box">
-          <span class="score-label">🏆 امتیاز نهایی</span>
+          <span class="score-label">🏆 Final Score</span>
           <span
             class="score-value"
             id="totalScoreDisplay"
@@ -26,10 +26,10 @@
             class="reset-score"
             id="resetScoreBtn"
           >
-            ⟳ ریست امتیاز
+            ⟳ Reset Score
           </button>
         </div>
-        <div class="badge">🎯 دقت = امتیاز | خطاها ثبت می‌شوند</div>
+        <div class="badge">🎯 Accuracy = Score | Errors are recorded</div>
       </div>
 
       <div class="arena">
@@ -49,13 +49,13 @@
           class="info-message"
           id="statusMsg"
         >
-          ⌨️ جمله را کامل تایپ کن | بعد از اتمام، خطاها نمایش داده می‌شوند
+          ⌨️ Type the complete sentence | Errors will be shown after completion
         </div>
         <button
           class="next-btn"
           id="nextSentenceBtn"
         >
-          ✨ جمله بعدی ✨
+          ✨ Next Sentence ✨
         </button>
       </div>
 
@@ -64,14 +64,12 @@
           id="liveErrorMsg"
           class="error-stats"
         >
-          ⚡ در حال تایپ ...
+          ⚡ Typing in progress...
         </div>
         <div id="progressText"></div>
       </div>
       <div class="footer">
-        💡 حروف سبز = درست | قرمز = اشتباه | آبی = مکان فعلی | بعد از تکمیل جمله، خطاها نمایش
-        داده شده و امتیاز براساس دقت محاسبه می‌شود. تمام کلیدها پشتیبانی می‌شوند: @ # $ % ^ & *
-        ( ) ! ؟ space
+        💡 Green letters = correct | Red = incorrect | Blue = current position | After completing the sentence, errors are displayed and score is calculated based on accuracy. All keys are supported: @ # $ % ^ & * ( ) ! ? space
       </div>
     </div>
 
